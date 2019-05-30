@@ -1,19 +1,19 @@
 `timescale 1ns / 1ps
 
 module clock(
-    input reset,
-    input clock,
-    output reg [7:0] AN,
-    output reg [6:0] ssd,
-    output [2:0] LED,
-    output kilo
+    input reset, //reset button resets clock to midnight, or 00:00:00
+    input clock, //100 MHz clock from FPGA hardware
+    output reg [7:0] AN, //Nexys A7 has 8 common anode 7 Segment displays. they are inverted, so if AN[n] is 0 the nth ssd is on, and off if 1
+    output reg [6:0] ssd, //ssd segments. decimal point not used in this project
+    output [2:0] LED, //test outputs for SSD select register
+    output kilo //test output for 1 kHz clock
     );   
     
-    reg [3:0] h1, h2, m1, m2, s1, s2;
-    reg [2:0] select;
+    reg [3:0] h1, h2, m1, m2, s1, s2; //2 hour digits from 1 to 2 and 1 to 9, minutes from 1 to 9, seconds from 1 to 9
+    reg [2:0] select; //selects which of the 8 7 segments (representing one of the digits is showing at a given time)
     
-    //Clock divider #1 - 1 Hz. Divides 1 MHz 
-    reg [29:0] count_reg = 0;
+    //Clock divider #1 - 1 Hz. Divides 1 MHz. triggers once every 100 million pulses, essentially converting 100 MHz to 1 Hz
+    reg [27:0] count_reg = 0; //
     reg out_1Hz = 0;
     always @(posedge clock) begin
      begin
@@ -28,7 +28,7 @@ module clock(
         end
     end
     
-    //1 khz clock divider 
+    //1 khz clock divider same as above, just divides by 1000 less to create a 1 khz signal
     reg [16:0] count_reg2 = 0;
     reg out_1kHz = 0;
     always @(posedge clock) begin
@@ -44,6 +44,7 @@ module clock(
         end
     end
 
+//core program logic. if reset, go to 0. otherwise, increment by 1s. as digits hit their max, adjust later digits
 always@(posedge out_1Hz or posedge reset)
 if(reset)
     begin
@@ -94,17 +95,17 @@ else
         s2 <= s2 + 1;    
     end
       
-reg [3:0]  digit;
-
-always@(posedge out_1kHz)
-begin
+reg [3:0]  digit; //digit displayed on SSD
+    
+    always@(posedge out_1kHz) //change which ssd is used @1khz pulse as well as which digit is displayed
+begin 
 if (reset)
 select <= 0;
 else
 select <= select + 1;
 end
 
-always@(*)
+    always@(*) //state machine selecting digit value and ssd display when select changes @1khz
 case(select)
 3'b000:
 begin
@@ -155,7 +156,8 @@ AN = 8'b11111111;
 end
 endcase
 
-always @(posedge clock)
+ //displaying digit on screen
+    always @(*)
     case (digit)
       0: ssd <= 7'b0000001;
       1: ssd <= 7'b1001111;
