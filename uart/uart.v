@@ -1,13 +1,13 @@
 module serialGPIO(
-    input clk,
-    input RxD,
-    input transmit,
-    input [7:0] SW,
+    input clk, //system clock
+    input RxD, //UART receiver channel (USB UART Bridge on Nexys)
+    input transmit, //UART transmitter channel
+    input [7:0] SW, //Switches controlling extremely basic decoding
 
-    output reg [7:0] GPout,  // general purpose outputs
-    output reg [7:0] AN,
-    output reg [6:0] ssd,
-    output TxD
+    output reg [7:0] GPout,  // GPOut holds 8 bit UART data
+    output reg [7:0] AN, //7 Segment display Anodes
+    output reg [6:0] ssd, //  display segments
+    output TxD //transmitted data
 );
 initial
 begin
