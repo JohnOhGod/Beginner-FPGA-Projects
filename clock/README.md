@@ -8,8 +8,9 @@ This project can easily be adapted for another FPGA with the required 7-Segment 
 ### A. Clock
 The input clock is a 100 MHz clock input from pin E3 on the Nexys A7-100T. This is used to generate a pulse per second via a clock divider.
 ### B. 7-Segment Displays
+The Nexys A7-100T includes 8 onboard common-anode 7-segment displays. Due to the internal circuitry, each 7-segment display is enabled when its anode is LOW, not high. The segments are enabled when their values are LOW as well.
 ### C. LED Alarm
-
+The Nexys contains 2 RGB LEDs. Each color is mapped to a seperate output pin. While the alarm "goes off", the LED cycles through the 3 colors changing every second.
 ## 3. Code Sections
 
 
